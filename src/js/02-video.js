@@ -3,23 +3,16 @@ import throttle from 'lodash.throttle';
 
 const iframe = document.querySelector('iframe');
 const player = new VimeoPlayer(iframe);
+const CURRENT_TIME = 'videoplayer-current-time';
+const THROTTLE_TIME = 1000;
 
 const onPlay = function (data) {
-  localStorage.setItem('videoplayer-current-time', data.seconds);
+  localStorage.setItem(CURRENT_TIME, Math.round(data.seconds));
 };
 
-player.on('timeupdate', throttle(onPlay, 1000));
+player.on('timeupdate', throttle(onPlay, THROTTLE_TIME));
 
-const currentTime = Number(localStorage.getItem('videoplayer-current-time'));
-
-player
-  .setCurrentTime(currentTime)
-  .then(function (seconds) {})
-  .catch(function (error) {
-    switch (error.name) {
-      case 'RangeError':
-        break;
-      default:
-        break;
-    }
-  });
+if (localStorage.getItem(CURRENT_TIME)) {
+  const userPlaybackTime = localStorage.getItem(CURRENT_TIME);
+  player.setCurrentTime(userPlaybackTime);
+} else return;
